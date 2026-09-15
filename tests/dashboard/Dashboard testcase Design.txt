@@ -1,0 +1,8 @@
+
+ID          actions     Expected result
+DASH-001                Dashbboard is visible after login
+DASH-002                Main navigation is visible
+DASH-003                User profile can be opened
+DASH-004                Navigation panel van be used
+DASH-005                My actions are available
+

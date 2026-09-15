@@ -4,7 +4,7 @@ test.beforeEach(async ({page}) =>{
     await page.goto('https://opensource-demo.orangehrmlive.com/');
 })
 
-test ('AUTH-001 - login happyflow', async ({page}) => {
+test ('AUTH-001 Valid credentials', async ({page}) => {
     await page.getByRole('textbox', { name: 'Username' }).fill('Admin');
     await page.getByRole('textbox', { name: 'Password' }).fill('admin123');
     await page.getByRole('button', { name: 'Login' }).click();
@@ -53,22 +53,6 @@ for (const loginCase of invalidCredentialCases){
     }
     );
 }
-test ('AUTH-003 Invalid username, login rejected', async ({page}) => {
-    await page.getByRole('textbox', { name: 'Username' }).fill('WrongName');
-    await page.getByRole('textbox', { name: 'Password' }).fill('admin123');
-    await page.getByRole('button', { name: 'Login' }).click(); 
-    await expect (page.getByText('Invalid credentials')). toBeVisible();
-    await expect (page).toHaveURL(/auth\/login/);
-});
-
-test ("AUTH-004 Valid username, invalid password", async ({page}) =>{
-    await page.getByRole('textbox', { name: 'Username' }).fill('Admin');
-    await page.getByRole('textbox', { name: 'Password' }).fill('wrongPaswrd');
-    await page.getByRole('button', { name: 'Login' }).click(); 
-    await expect (page.getByText('Invalid credentials')). toBeVisible();
-    await expect (page).toHaveURL(/auth\/login/);
-});
-
 test ("AUTH-005 Empty username, valid password", async ({page})=>{
     await page.getByRole('textbox', { name: 'Password' }).fill('admin123');
     await page.getByRole('button', { name: 'Login' }).click(); 

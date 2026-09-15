@@ -1,0 +1,7 @@
+ID          Username    password    expected result
+AUTH-001    Valid       Valid       Login succesful, navigated to Dashbboard
+AUTH-002    Empty       Empty       Both fields are required
+AUTH-003    invalid     Valid       Invalid credentials
+AUTH-004    Valid       Invalid     Invalid credentials
+AUTH-005    Empty       Valid       Username required
+AUTH-006    Valid       Empty       password required
