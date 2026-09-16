@@ -1,0 +1,65 @@
+import {test, expect} from '@playwright/test';
+
+test.beforeEach(async ({page})=> {
+    await page.goto('https://opensource-demo.orangehrmlive.com/');
+    await page.getByRole('textbox', { name: 'Username' }).fill('Admin');
+    await page.getByRole('textbox', { name: 'Password' }).fill('admin123');
+    await page.getByRole('button', { name: 'Login' }).click();
+
+});
+
+test ('DASH-001 Dashboard is visible after login',async ({page})=>{
+    await expect(page).toHaveURL(/dashboard/);
+    await expect(
+        page.getByRole('heading', {name:'Dashboard'})
+    ).toBeVisible();
+});
+
+test('DASH-002 main navigation is available', async ({page})=>{
+const menuItems = [
+    'Admin',
+    'Leave',
+    'Time',
+    'Recruitment',
+    'My Info',
+    'Performance',
+    'Dashboard',
+    'Directory',
+    'Maintenance',
+    'Claim',
+    'Buzz',
+];
+
+for (const menuItem of menuItems) {
+    await expect(
+        page.getByRole('link', { name: menuItem})
+    ).toBeVisible();
+}
+})
+
+test('DASH-003 Userprofile can be opened', async ({page})=>{
+const aboutMenuItems = [
+    'Company Name',
+    'Version',
+    'Active Employees',
+    'Employees',
+    'Terminated',
+];
+
+    await page.locator('span').filter({ hasText: 'manda user' }).click();
+    await page.getByRole('menuitem', { name: 'About' }).click();
+
+    await expect (
+        await page.getByRole('heading', { name: 'About' })
+    ).toBeVisible();
+
+    for (const aboutMenuItem of aboutMenuItems) {
+    await expect (
+        page.locator('.oxd-grid-2').filter({hasText: aboutMenuItem})
+    ).toBeVisible();
+};
+    await expect(
+        page.getByRole('dialog').getByText('OrangeHRM', {exact: true})
+    ).toBeVisible();
+
+})
