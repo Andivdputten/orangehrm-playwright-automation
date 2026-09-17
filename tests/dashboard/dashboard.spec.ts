@@ -15,6 +15,17 @@ test ('DASH-001 Dashboard is visible after login',async ({page})=>{
     ).toBeVisible();
 });
 
+test('DASH-002.a Write DOM information to console', async ({page})=>{
+const widgets = page.locator('.orangehrm-dashboard-widget-name');
+
+await expect(widgets.first()).toBeVisible();
+
+const widgetNames = await widgets.allTextContents();
+
+console.log(widgetNames);
+
+});
+
 test('DASH-002 main navigation is available', async ({page})=>{
 const menuItems = [
     'Admin',
@@ -30,6 +41,8 @@ const menuItems = [
     'Claim',
     'Buzz',
 ];
+
+
 
 for (const menuItem of menuItems) {
     await expect(
