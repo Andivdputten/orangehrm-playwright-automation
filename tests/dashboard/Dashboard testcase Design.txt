@@ -2,12 +2,12 @@
 ID          actions                                                 Expected result
 DASH-001    Login sucessfully, page is loaded correctly            Dashbboard is visible after login
 DASH-002    Login sucessfully, page is loaded correctly            Main navigation is visible
-DASH-003    Login successfully, click user profile                 User profile can be opened
+DASH-003    Login successfully, click user profile                 User dropdown menu can be opened
 DASH-004    Login successfully, page is loaded correctly           My actions are available
 DASH-005    login successfully, check widgets                      Dashboard widgets are available
 DASH-006    login successfully, navigate to a different module     Navigate from Dashboard to PIM
 DASH-007    login successfully, navigate to different module, navigate back            Navigate from othes module to Dashbboard
-DASH-008    login successfully, navigate to user profile           Dropdown menu can be opened
+DASH-008    login successfully, navigate to user profile           About information can be opened from user menu
 
 Flow of tests:
 Login as user -> dashboard loaded -> excecute test
