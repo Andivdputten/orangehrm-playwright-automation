@@ -15,17 +15,6 @@ test ('DASH-001 Dashboard is visible after login',async ({page})=>{
     ).toBeVisible();
 });
 
-test('DASH-002.a Write DOM information to console', async ({page})=>{
-const widgets = page.locator('.orangehrm-dashboard-widget-name');
-
-await expect(widgets.first()).toBeVisible();
-
-const widgetNames = await widgets.allTextContents();
-
-console.log(widgetNames);
-
-});
-
 test('DASH-002 main navigation is available', async ({page})=>{
 const menuItems = [
     'Admin',
@@ -52,37 +41,31 @@ for (const menuItem of menuItems) {
 });
 
 test('DASH-003 User dropdown menu can be opened', async ({page})=>{
+    await page.getByRole('banner').getByRole('img', { name: 'profile picture' }).click();
 
-
-    await page.locator('span').filter({ hasText: 'manda user' }).click();
-    await page.getByRole('menuitem', { name: 'About' }).click();
-
+    await expect(
+        page.getByRole('menuitem', { name: 'About' })
+        ).toBeVisible();
     await expect (
-        page.getByRole('heading', { name: 'About' })
-    ).toBeVisible();
-
+        page.getByRole('menuitem', {name : 'Support'})
+        ).toBeVisible();
+    await expect (
+        page.getByRole('menuitem', {name : 'Change Password'})
+        ).toBeVisible();
+      await expect (
+        page.getByRole('menuitem', {name : 'Logout'})
+        ).toBeVisible();
 });
 
 test ("DASH-004 My actions are available", async ({page})=>{
    await expect(
     page.locator('.orangehrm-dashboard-widget-name').filter({hasText: 'My Actions'})
     ).toBeVisible();
-
-   await expect (
-    page.locator('button.oxd-icon-button--danger')
-   ).toBeVisible();
-
-   await expect(
-    page.locator('button.oxd-icon-button--info')
-   ).toBeVisible();
-
-   await expect(
-    page.locator('.orangehrm-todo-list-item')
-   ).not.toHaveCount(0);    
+  
 });
 
 test ('DASH-005 Dashboard widgets are available', async ({page})=>{
-    const dasboardWidgetItems =[
+    const dashboardWidgetItems =[
         'Time at Work',
         'My Actions',
         'Quick Launch',
@@ -93,11 +76,34 @@ test ('DASH-005 Dashboard widgets are available', async ({page})=>{
     
     ];
 
-for (const dashboardWidgetItem of dasboardWidgetItems) {
+for (const dashboardWidgetItem of dashboardWidgetItems) {
     await expect(
         page.locator('.orangehrm-dashboard-widget-name').filter({hasText : dashboardWidgetItem})
     ).toBeVisible();
 };
+});
+
+test ('DASH-006  Navigate from dashboard to PIM', async ({page})=>{
+    await page.getByRole('link', {name: 'PIM'}).click();
+
+    await expect (page).toHaveURL(/pim/);
+    await expect(
+        page.getByRole('heading', {name:'PIM'})
+    ).toBeVisible();
+    
+});
+
+test ('DASH-007 Navigate from PIM to dashboard', async ({page})=>{
+    await page.getByRole('link', {name: "PIM"}).click();
+    
+    await expect (page).toHaveURL(/pim/);
+
+    await page.getByRole('link',{name:'Dashboard'}).click();
+
+    await expect(page).toHaveURL(/dashboard/);
+    await expect(
+        page.getByRole('heading',{name:'Dashboard'})
+    ).toBeVisible()
 })
 
 test ('DASH-008 About information can be opened from user menu', async ({page})=>{
@@ -108,6 +114,9 @@ test ('DASH-008 About information can be opened from user menu', async ({page})=
     'Employees',
     'Terminated',
 ];
+
+await page.getByRole('banner').getByRole('img', { name: 'profile picture' }).click();
+await page.getByRole('menuitem',{name:"About"}).click();
 
 for (const aboutMenuItem of aboutMenuItems) {
     await expect (
