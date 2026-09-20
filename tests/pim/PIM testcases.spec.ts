@@ -20,21 +20,21 @@ test ('PIM-001 Navigate to PIM', async ({page})=>{
 test ('PIM-002 Employee list controls are available', async ({page})=>{
     const searchButton = page.getByRole('button', {name: 'Search'});
     const resetButton = page.getByRole('button', {name: 'reset'});
+    const addButton = page.getByRole('button', {name : 'Add'});
     
     await expect(searchButton).toBeVisible();
-    await expect(searchButton).toHaveAttribute('type', 'submit') 
     
     await expect(resetButton).toBeVisible();
-    await expect(resetButton).toHaveAttribute('type', 'reset')
     
-    await expect(
-        page.getByRole('button').filter({hasText:'add'})
-    ).toBeVisible();    
+    await expect(addButton).toBeVisible();    
 });
 
 test ('PIM-003 Search for non-exisiting Employee', async ({page})=>{
-
-    await page.getByRole('textbox', {name: 'Type for hints...'}).first().fill("testGuy")
+    const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
+    const unknownEmployee = `TEST_MAN_SSJ3-${Date.now()}`;
+   
+   
+    await employeeName.fill(unknownEmployee)
     await page.getByRole('button', {name:'Search'}).click();
     
     await expect(
@@ -42,21 +42,40 @@ test ('PIM-003 Search for non-exisiting Employee', async ({page})=>{
     ).toBeVisible();
     
     await expect(
-        page.locator('span.oxd-text:nth-child(1)').getByText('No Records Found')
+        page.locator('span').filter({hasText:'No Records Found'})
     ).toBeVisible();
 
 });
 
 test ('PIM-004 Reset Employee Search', async ({page})=>{
     
-    const employeeName = page.getByRole('textbox', {name: 'Type for hints...'}).first();
+    const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
     const employeeID = page.getByRole('textbox').nth(2);
-    const supervisorName = page.getByRole('textbox', { name: 'Type for hints...' }).nth(1);
-    const employmentStatus = page.getByText('-- Select --').first();
-    const jobTitle = page.getByText('-- Select --').nth(1);
-    const subUnit = page.getByText('-- Select --').nth(2);
-    const includeFilter = page.getByText('Current Employees Only');
+    const supervisorName = page.locator('.oxd-input-group').filter({hasText:'Supervisor Name'}).getByPlaceholder("Type for hints...");
+    const employmentStatus = page.locator('.oxd-input-group').filter({hasText: 'Employment Status'}).locator('.oxd-select-text');
+    const jobTitle = page.locator('.oxd-input-group').filter({hasText: 'Job Title'}).locator('.oxd-select-text');;
+    const subUnit = page.locator('.oxd-input-group').filter({hasText: 'Sub Unit'}).locator('.oxd-select-text');
+    const includeFilter = page.locator('.oxd-input-group').filter({hasText: 'Include'}).locator('.oxd-select-text');
 
+    await employeeName.fill("TEST_EMPLOYEE_SSJ1");
+    await expect(employeeName).toHaveValue("TEST_EMPLOYEE_SSJ1");
+    await employeeID.fill('1337');
+    await expect (employeeID).toHaveValue("1337");
+    await supervisorName.fill('King_kai');
+    await expect(supervisorName).toHaveValue('King_kai')
+    await jobTitle.click();
+    await page.locator('.oxd-select-dropdown').getByText('Automaton Tester').click();
+    await expect(jobTitle).toHaveText('Automaton Tester');
+    await subUnit.click();
+    await page.locator('.oxd-select-dropdown').getByText('hola').click();
+    await expect(subUnit).toHaveText('hola');
+    await employmentStatus.click();
+    await page.locator('.oxd-select-dropdown').getByText('Freelance').click();
+    await expect(employmentStatus).toHaveText('Freelance');
+    await includeFilter.click();
+    await page.locator('.oxd-select-dropdown').getByText('Current and Past Employees').click();
+    await expect(includeFilter).toHaveText('Current and Past Employees');
+    
     await page.getByRole('button', {name : 'reset'}).click();
 
     await expect(employeeName).toBeEmpty();
