@@ -4,7 +4,7 @@ PIM-002     Employee list controls are available            Search, Reset, Add a
 PIM-003     Search for non-exisiting Employee               No results
 PIM-004     Reset Employee Search                           All filters are result
 PIM-005     Open Add Employee                               Add employee form opens
-PIM-006     Submut Add Employee without required fields     Required fields Validation is visible
+PIM-006     Submit Add Employee without required fields     Required fields Validation is visible
 PIM-007     Create Employee with valid Data                 Employee created successfully
 PIM-008     Search new employee                             New employee is found
 PIM-009     Open new employee details                       New employee details are opened
