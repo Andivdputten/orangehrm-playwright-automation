@@ -193,11 +193,9 @@ test ('PIM-008 Search new employee', async ({page})=>{
     
     const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
     
-    await employeeIDInput.fill(employeeID);
     await employeeName.fill(randomFirstName);
     await page.locator('.oxd-autocomplete-dropdown').getByText(fullName).click()
     await page.getByRole('button', {name : 'search'}).click();
-
 
     await expect(
         page.locator('.oxd-table-row').filter({hasText : randomFirstName}).filter({hasText : randomLastName})
