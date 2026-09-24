@@ -34,7 +34,7 @@ export async function createEmployee(
     const employeeID = await employeeIDInput.inputValue();
 
     await page.getByRole('button', {name:'Save'}).click();
-    console.log(`Created employee: ${employee.fullName}, ID ${employee.employeeID}`);
+    console.log(`Created employee: ${fullName}, ID ${employeeID}`);
 
     await page.waitForURL(/viewPersonalDetails/);
 
