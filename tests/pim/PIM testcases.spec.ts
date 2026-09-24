@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {faker} from '@faker-js/faker';
+import { CreatedEmployee, createEmployee } from '../../helpers/employee.helper';
 
 test.beforeEach(async ({page})=>{
     await page.goto('https://opensource-demo.orangehrmlive.com/');
@@ -119,73 +120,27 @@ test ('PIM-006 Submit Add Employee without required fields', async ({page})=>{
 });
 
 test ('PIM-007 Create Employee with valid Data', async ({page})=>{
-    const addButton = page.getByRole('button', {name : 'Add'});
-    const saveButton = page.getByRole('button', {name: 'Save'}); 
-    
-    await addButton.click();
-
-    const firstName = page.locator('.orangehrm-firstname');
-    const middleName = page.locator('.orangehrm-middlename');
-    const lastName = page.locator('.orangehrm-lastname');
-    
-    const employeeIDInput = page.locator('.oxd-input-group').filter({hasText : 'Employee Id'}).locator('.oxd-input');
-    const employeeID = await employeeIDInput.inputValue();
-    
-    const randomFirstName = faker.person.firstName();
-    const randomMiddleName = faker.person.middleName();
-    const randomLastName = faker.person.lastName();
-
-    await firstName.fill(randomFirstName);
-    await expect(firstName).toHaveValue(randomFirstName);
-    await middleName.fill(randomMiddleName);
-    await expect(middleName).toHaveValue(randomMiddleName);
-    await lastName.fill(randomLastName);
-    await expect(lastName).toHaveValue(randomLastName);
-    
-    console.log('EmployeeID: ' + employeeID);
-    
-    await saveButton.click();
+    const employee = await createEmployee(page);
 
     await expect(page).toHaveURL(/viewPersonalDetails/);
-    await expect(firstName).toHaveValue(randomFirstName);
-    await expect(middleName).toHaveValue(randomMiddleName);
-    await expect(lastName).toHaveValue(randomLastName);
+   
+    await expect(
+        page.locator('.orangehrm-firstname')
+    ).toHaveValue(employee.firstName);
+    await expect(
+        page.locator('.orangehrm-middlename')
+    ).toHaveValue(employee.middleName);
+    await expect(
+        page.locator('.orangehrm-lastname')
+    ).toHaveValue(employee.lastName);
+    await expect(
+        page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input')
+    ).toHaveValue(employee.employeeID);
 
 });
 
 test ('PIM-008 Search new employee', async ({page})=>{
-    const addButton = page.getByRole('button', {name : 'Add'});
-    const saveButton = page.getByRole('button', {name: 'Save'}); 
-    
-    await addButton.click();
-
-    const firstName = page.locator('.orangehrm-firstname');
-    const middleName = page.locator('.orangehrm-middlename');
-    const lastName = page.locator('.orangehrm-lastname');
-    
-    const employeeIDInput = page.locator('.oxd-input-group').filter({hasText : 'Employee Id'}).locator('.oxd-input');
-    
-    
-    const randomFirstName = faker.person.firstName();
-    const randomMiddleName = faker.person.middleName();
-    const randomLastName = faker.person.lastName();
-    const fullName = `${randomFirstName} ${randomMiddleName} ${randomLastName}`
-
-    await firstName.fill(randomFirstName);
-    await expect(firstName).toHaveValue(randomFirstName);
-    await middleName.fill(randomMiddleName);
-    await expect(middleName).toHaveValue(randomMiddleName);
-    await lastName.fill(randomLastName);
-    await expect(lastName).toHaveValue(randomLastName);
-    await employeeIDInput.fill(faker.string.numeric(4))
-    
-    const employeeID = await employeeIDInput.inputValue();
-
-    console.log(`EmployeeID: ${employeeID}`);
-    
-    await saveButton.click();
-
-    await expect(page).toHaveURL(/viewPersonalDetails/);
+    const employee = await createEmployee(page);
 
     await page.locator('.oxd-topbar-body-nav-tab').filter({hasText:'Employee List'}).click();
     
@@ -193,23 +148,66 @@ test ('PIM-008 Search new employee', async ({page})=>{
     
     const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
     
-    await employeeName.fill(randomFirstName);
-    await page.locator('.oxd-autocomplete-dropdown').getByText(fullName).click()
+    await employeeName.fill(employee.firstName);
+    await page.locator('.oxd-autocomplete-dropdown').getByText(employee.fullName).click()
     await page.getByRole('button', {name : 'search'}).click();
 
     await expect(
-        page.locator('.oxd-table-row').filter({hasText : randomFirstName}).filter({hasText : randomLastName})
+        page.locator('.oxd-table-row').filter({hasText : employee.firstName}).filter({hasText : employee.lastName})
     ).toBeVisible();
     await expect(
-        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : employeeID})
-    ).toHaveText(employeeID);
+        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : employee.employeeID})
+    ).toHaveText(employee.employeeID);
     await expect(
-        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : randomFirstName+" "+randomMiddleName})
-    ).toHaveText(randomFirstName+" "+randomMiddleName);
+        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : employee.firstName+" "+employee.middleName})
+    ).toHaveText(employee.firstName+" "+employee.middleName);
     await expect(
-        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : randomLastName})
-    ).toHaveText(randomLastName);
+        page.locator('.orangehrm-employee-list').locator('.oxd-table-cell').filter({hasText : employee.lastName})
+    ).toHaveText(employee.lastName);
     
-    console.log(`Created employee: ${fullName}, ID ${employeeID}`);
+    console.log(`Created employee: ${employee.fullName}, ID ${employee.employeeID}`);
  
 });
+test ("PIM-009 Open new employee details", async ({page})=>{
+    const employee = await createEmployee(page);
+
+    console.log(`Created employee: ${employee.fullName}, ID ${employee.employeeID}`);
+
+    await page.locator('.oxd-topbar-body-nav-tab').filter({hasText:'Employee List'}).click();
+    
+    await expect(page).toHaveURL(/viewEmployeeList/)
+    
+    const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
+    
+    await employeeName.fill(employee.firstName);
+    await page.locator('.oxd-autocomplete-dropdown').getByText(employee.fullName).click()
+    await page.getByRole('button', {name : 'search'}).click();
+
+    const employeeRow = page.locator('.oxd-table-row').filter({hasText : employee.employeeID});
+    await expect(employeeRow).toBeVisible();
+    await employeeRow.getByRole('button').filter({has: page.locator('.bi-pencil-fill')}).click();
+   
+    await expect (page).toHaveURL(/viewPersonalDetails/);
+   
+    await expect (
+        page.getByRole('heading', {name :"Personal Details" })
+    ).toBeVisible();
+    await expect(
+        page.locator('.orangehrm-firstname')
+    ).toHaveValue(employee.firstName);
+    await expect(
+        page.locator('.orangehrm-middlename')
+    ).toHaveValue(employee.middleName);
+    await expect(
+        page.locator('.orangehrm-lastname')
+    ).toHaveValue(employee.lastName);
+    await expect(
+        page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input')
+    ).toHaveValue(employee.employeeID);
+});
+
+test ('PIM-010 Edit new employee details', async ({page})=>{
+    const employee = await createEmployee(page);
+    
+
+})
