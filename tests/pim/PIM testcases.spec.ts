@@ -208,6 +208,109 @@ test ("PIM-009 Open new employee details", async ({page})=>{
 
 test ('PIM-010 Edit new employee details', async ({page})=>{
     const employee = await createEmployee(page);
+    await page.locator('.oxd-topbar-body-nav-tab').filter({hasText:'Employee List'}).click();
+    await expect(page).toHaveURL(/viewEmployeeList/);
+
+    const employeeName = page.locator('.oxd-input-group').filter({hasText:'Employee Name'}).getByPlaceholder("Type for hints...");
     
+    await employeeName.fill(employee.firstName);
+    await page.locator('.oxd-autocomplete-dropdown').getByText(employee.fullName).click()
+    await page.getByRole('button', {name : 'search'}).click();
+
+    const employeeRow = page.locator('.oxd-table-row').filter({hasText : employee.employeeID});
+    await expect(employeeRow).toBeVisible();
+    await employeeRow.getByRole('button').filter({has: page.locator('.bi-pencil-fill')}).click();
+   
+    await expect (page).toHaveURL(/viewPersonalDetails/);
+
+    const changedName = faker.person.firstName();
+    const changedMiddleName = faker.person.middleName();
+    const changedLastName = faker.person.lastName();
+    const changedFullName = `${changedName} ${changedMiddleName} ${changedLastName}`;
+    const changedFirstMiddleName = `${changedName} ${changedMiddleName}`;
+    const changedEmployeeID = faker.vehicle.vehicle();
+    const changedLicenseNumber = faker.string.numeric(8);
+    const changedLicenseExpiry = '2030-12-31';
+    const changedBirthDate = '1337-12-31';
+
+    await page.locator('.orangehrm-firstname').fill(changedName);
+    await page.locator('.orangehrm-middlename').fill(changedMiddleName);
+    await page.locator('.orangehrm-lastname').fill(changedLastName);
+    await page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input').fill(changedEmployeeID);
+    await page.locator('.oxd-input-group').filter({hasText: 'Driver\'s License Number'}).locator('.oxd-input').fill(changedLicenseNumber);
+    await page.locator('.oxd-input-group').filter({hasText: 'License Expiry Date'}).locator('.oxd-input').fill(changedLicenseExpiry);
+    await page.locator('.oxd-input-group').filter({hasText: 'Nationality'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('Mongolian').click();
+    await page.locator('.oxd-input-group').filter({hasText: 'Marital Status'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('Married').click();
+    await page.locator('.oxd-input-group').filter({hasText: 'Date of Birth'}).locator('.oxd-input').fill(changedBirthDate);
+    await page.locator('.oxd-input-group').filter({hasText: 'Gender'}).locator('.oxd-radio-input').filter({hasText: 'Male'}).click();
+    await page.locator('.oxd-input-group').filter({hasText: 'Blood Type'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('A+').click();
+
+    await page.getByRole('button', {name: 'Save'}).click();
+
+    await expect(page.locator('.orangehrm-firstname')).toHaveValue(changedName);
+    await expect(page.locator('.orangehrm-middlename')).toHaveValue(changedMiddleName);
+    await expect(page.locator('.orangehrm-lastname')).toHaveValue(changedLastName);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Employee Id'}).locator('.oxd-input')).toHaveValue(changedEmployeeID);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Driver\'s License Number'}).locator('.oxd-input')).toHaveValue(changedLicenseNumber);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'License Expiry Date'}).locator('.oxd-date-input')).toHaveValue(changedLicenseExpiry);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'License Expiry Date'}).locator('.oxd-date-input')).toHaveValue(changedLicenseExpiry);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Nationality'}).locator('.oxd-select-text')).toHaveText('Mongolian');
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Marital Status'}).locator('.oxd-select-text')).toHaveText('Married');
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Date of Birth'}).locator('.oxd-date-input')).toHaveValue(changedBirthDate);
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Gender'}).locator('.oxd-radio-wrapper').filter({hasText: 'Male'}).locator('input')).toBeChecked();
+    await expect(page.locator('.oxd-input-group').filter({hasText: 'Blood Type'}).locator('.oxd-select-text')).toHaveText('A+');
+
+    await page.locator('.orangehrm-tabs-wrapper').getByRole('tab').filter({hasText: 'Job'}).click();
+    await expect(page).toHaveURL(/viewJobDetails/);
+
+    await page.locator('.oxd-input-group').filter({hasText: 'Job Title'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('Automaton Tester').click();
+
+    await page.locator('.oxd-input-group').filter({hasText: 'Employment Status'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('Freelance').click();
+
+    await page.locator('.oxd-input-group').filter({hasText: 'Sub Unit'}).locator('.oxd-select-text').click();
+    await page.locator('.oxd-select-dropdown').getByText('hola').click();
+
+    await page.getByRole('button', {name: 'Save'}).click();
+
+    await page.locator('.orangehrm-tabs-wrapper').getByRole('tab').filter({hasText: 'Report-to'}).click();
+    await expect(page).toHaveURL(/viewReportToDetails/);
+
+    await page.locator('.orangehrm-action-header').filter({hasText: 'Assigned Supervisors'}).getByRole('button', {name: 'Add'}).click();
+    const supervisorInput = await page.locator('.oxd-input-group').filter({hasText: 'Name'}).getByPlaceholder('Type for hints...');
+    const numberOfSupervisors = await supervisorInput.count();
+    const randomSupervisorIndex = Math.floor(Math.random() * numberOfSupervisors);
+    const selectedSupervisor = supervisorInput.nth(randomSupervisorIndex);
+    await selectedSupervisor.click();
+    const supervisorName = await selectedSupervisor.inputValue();
+
+    await page.locator('.oxd-input-group').filter({hasText: 'Reporting Method'}).click();
+    await page.locator('.oxd-select-dropdown').getByText('Direct').click();
+
+    await page.getByRole('button', {name: 'Save'}).click();
+
+    await page.locator('.oxd-topbar-body-nav-tab').filter({hasText:'Employee List'}).click();
+    await expect(page).toHaveURL(/viewEmployeeList/);
+    
+    const changedEmployeeRow = await page.locator('.oxd-table-row').filter({hasText : changedEmployeeID});
+    await employeeName.fill(changedFullName);
+    await page.locator('.oxd-autocomplete-dropdown').getByText(changedFullName).click()
+    await page.getByRole('button', {name : 'search'}).click();
+    await expect(changedEmployeeRow).toBeVisible();
+    await page.locator('.oxd-table-row').filter({hasText : changedEmployeeID});
+    await page.locator('.oxd-table-row').filter({hasText : changedFirstMiddleName});
+    await page.locator('.oxd-table-row').filter({hasText : 'automaton tester'});
+    await page.locator('.oxd-table-row').filter({hasText : 'freelance'});
+    await page.locator('.oxd-table-row').filter({hasText : 'hola'});
+    await page.locator('.oxd-table-row').filter({hasText : supervisorName});
+
+
+
+
+    //check: ID, First and middle name, lastname, job title, employment status, subunit, supervisor name
 
 })
